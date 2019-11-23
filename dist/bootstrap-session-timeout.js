@@ -30,8 +30,12 @@
             onRedir: false,
             countdownMessage: false,
             countdownBar: false,
-            countdownSmart: false
+            countdownSmart: false,
+            extendAliveTimeInterval : false,
+            extendAliveURL: null
         };
+
+        var intervalFunction=null;
 
         var opt = defaults,
             timer,
@@ -40,6 +44,30 @@
         // Extend user-set options over defaults
         if (options) {
             opt = $.extend(defaults, options);
+        }
+
+        if(opt.extendAliveTimeInterval && opt.extendAliveURL!=null){
+            if(opt.warnAfter< 5000){
+                opt.warnAfter+=5000;
+                opt.redirAfter+=5000;
+            }
+            debugger;
+             intervalFunction = setInterval(function() {
+                $.ajax({
+                url:opt.extendAliveURL,
+                cache:false,
+                dataType: "text",
+                success : function(data){
+                    if(data==true || data=="true"){
+                        startSessionTimer();
+                    } /*else {
+                        clearInterval(intervalFunction);
+                    }*/
+                }
+
+            });
+                }, opt.warnAfter-5000);
+
         }
 
         // Some error handling if options are miss-configured
